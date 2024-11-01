@@ -2,6 +2,7 @@
 <%@ page import="org.example.ecom.FormBean.ProductBean" %>
 <%@ page import="org.example.ecom.model.Product" %>
 <%@ page import="org.example.ecom.model.Category" %>
+<%@ page import="java.io.File" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -207,7 +208,7 @@
     Long filterId = productBean.getFilterId();
 %>
 <h1>Product Management</h1>
-<form action="product" method="post">
+<form action="product" method="post" enctype="multipart/form-data">
     <h2>Add Product</h2>
     <div>
         <label for="name">Product Name:</label>
@@ -234,6 +235,10 @@
         <input type="text" id="sdr" name="sdr"
                value="<%= productBean.getProductSdr() != null ? productBean.getProductSdr() : "" %>">
     </div>
+    <dic>
+        <label for="image">Product Image:</label>
+        <input type="file" id="image" name="image">
+    </dic>
     <% if (productBean.getProductId() != null) { %>
     <input type="hidden" name="productId" value="<%= productBean.getProductId() %>">
     <input type="hidden" name="_method" value="PUT">
@@ -288,6 +293,7 @@
     <table>
         <tr>
             <th>Product ID</th>
+            <th>Product Image</th>
             <th>Product Name</th>
             <th>Product Description</th>
             <th>Product Price</th>
@@ -298,6 +304,8 @@
         <tr>
             <td><%= p.getId() %>
             </td>
+            <td><img src="./images/<%= new File(p.getImage()).getName() %>" alt="<%= p.getName() %>"
+                     width="100" height="100"></td>
             <td><%= p.getName() %>
             </td>
             <td><%= p.getDescription() %>

@@ -1,12 +1,14 @@
 package org.example.ecom.Controller;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import org.example.ecom.FormBean.ProductBean;
 import org.example.ecom.Service.CategoryDaoImp;
@@ -15,6 +17,7 @@ import org.example.ecom.model.Category;
 import org.example.ecom.model.Product;
 
 @WebServlet("/product")
+@MultipartConfig
 public class ProductController extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
@@ -40,7 +43,6 @@ public class ProductController extends HttpServlet {
 
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
-
     String method = request.getParameter("_method");
     if (method != null && method.equalsIgnoreCase("DELETE")) {
       doDelete(request, response);
@@ -59,18 +61,15 @@ public class ProductController extends HttpServlet {
 
       HttpSession session = request.getSession();
       ProductBean productBean = new ProductBean();
+
       if (name == null
           || name.trim().isEmpty()
           || description == null
           || description.trim().isEmpty()
           || price == null
-          || price.trim().isEmpty()
           || quantity == null
-          || quantity.trim().isEmpty()
           || sdr == null
-          || sdr.trim().isEmpty()
-          || categoryId == null
-          || categoryId.trim().isEmpty()) {
+          || categoryId == null) {
         productBean.setError("All fields are required");
         productBean.setCategories(categoryDao.getAll());
         productBean.setProducts(productDao.getAll());
@@ -102,6 +101,22 @@ public class ProductController extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/products.jsp").forward(request, response);
       }
       product.setCategory(category.get());
+
+      Part filePart = request.getPart("image");
+      String imagePath = null;
+      if (filePart != null && filePart.getSize() > 0) {
+        String imageFolder = getServletContext().getRealPath("/images");
+        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        imagePath = imageFolder + File.separator + fileName;
+        product.setImage(imagePath);
+        File imageFile = new File(imagePath);
+        if (!imageFile.getParentFile().exists()) {
+          imageFile.getParentFile().mkdirs();
+        }
+        Files.copy(filePart.getInputStream(), imageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      }
+      
+      
       if (method != null && method.equalsIgnoreCase("PUT")) {
         product.setId(Long.parseLong(request.getParameter("productId")));
         productDao.update(product);
@@ -113,9 +128,11 @@ public class ProductController extends HttpServlet {
         productBean.setProductQuantity(Long.parseLong(quantity));
         productBean.setProductSdr(Long.parseLong(sdr));
         productBean.setCategoryId(Long.parseLong(categoryId));
+
       } else {
         productDao.create(product);
       }
+      
 
       productBean.setProducts(productDao.getAll());
       productBean.setCategories(categoryDao.getAll());
