@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+        "http://struts.apache.org/dtds/struts-2.5.dtd">
+<struts>
+    <package name="default" extends="struts-default">
+        <action name="index">
+            <result>/index.jsp</result>
+        </action>
+        <action name="addCategoryForm">
+            <result>/WEB-INF/addCategory.jsp</result>
+        </action>
+        <action name="addProductForm" method="addProductFormData" class="org.example.ecom.Actions.ProductAction">
+            <result name="success">/WEB-INF/addProduct.jsp</result>
+        </action>
+        <action name="products" class="org.example.ecom.Actions.ProductAction" method="listProducts">
+            <result name="success">/WEB-INF/products.jsp</result>
+        </action>
+        <action name="searchProducts" class="org.example.ecom.Actions.ProductAction" method="listProductsByKeyWord">
+            <result name="success">/WEB-INF/products.jsp</result>
+        </action>
+        <action name="filterProducts" class="org.example.ecom.Actions.ProductAction" method="listProductByCategory">
+            <result name="success">/WEB-INF/products.jsp</result>
+        </action>
+        <action name="categories" class="org.example.ecom.Actions.CategoryAction" method="listCategories">
+            <result name="success">/WEB-INF/categories.jsp</result>
+        </action>
+        <action name="searchCategories" class="org.example.ecom.Actions.CategoryAction"
+                method="listCategoriesByKeyword">
+            <result name="success">/WEB-INF/categories.jsp</result>
+        </action>
+        <action name="addProduct" class="org.example.ecom.Actions.ProductAction" method="addProduct">
+            <result name="success" type="redirect">products</result>
+        </action>
+        <action name="addCategory" class="org.example.ecom.Actions.CategoryAction" method="addCategory">
+            <result name="success" type="redirect">categories</result>
+        </action>
+        <action name="deleteProduct" class="org.example.ecom.Actions.ProductAction" method="deleteProduct">
+            <result name="success" type="redirect">products</result>
+        </action>
+        <action name="deleteCategory" class="org.example.ecom.Actions.CategoryAction" method="deleteCategory">
+            <result name="success" type="redirect">categories</result>
+        </action>
+        <action name="updateProduct" class="org.example.ecom.Actions.ProductAction" method="updateProduct">
+            <result name="success" type="redirect">products</result>
+        </action>
+        <action name="updateCategory" class="org.example.ecom.Actions.CategoryAction" method="updateCategory">
+            <result name="success" type="redirect">categories</result>
+        </action>
+        <action name="updateCategoryForm" class="org.example.ecom.Actions.CategoryAction"
+                method="updateCategoryFormData">
+            <result name="success">/WEB-INF/updateCategory.jsp</result>
+        </action>
+        <action name="updateProductForm" class="org.example.ecom.Actions.ProductAction" method="updateProductFormData">
+            <result name="success">/WEB-INF/updateProduct.jsp</result>
+        </action>
+    </package>
+</struts>

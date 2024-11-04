@@ -1,9 +1,10 @@
 <%@ page import="java.util.List" %>
-<%@ page import="org.example.ecom.FormBean.ProductBean" %>
+<%@ page import="org.example.ecom.Actions.ProductAction" %>
 <%@ page import="org.example.ecom.model.Product" %>
 <%@ page import="org.example.ecom.model.Category" %>
 <%@ page import="java.io.File" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="s" uri="/struts-tags" %>
 <html>
 <head>
     <title>Product Management</title>
@@ -65,44 +66,6 @@
 
         h1, h2 {
             color: #333;
-        }
-
-        form {
-            margin-bottom: 20px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        form div {
-            margin-bottom: 10px;
-        }
-
-        label {
-            display: inline-block;
-            width: 150px;
-            font-weight: bold;
-        }
-
-        input[type="text"], select {
-            width: calc(100% - 160px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        input[type="submit"] {
-            background: #5cb85c;
-            color: #fff;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background: #4cae4c;
         }
 
         .search-bar {
@@ -200,136 +163,61 @@
 </head>
 <body>
 <%@ include file="header.jsp" %>
-<% HttpSession httpSession = request.getSession();
-    ProductBean productBean = (ProductBean) httpSession.getAttribute("productBean");
-    List<Product> products = productBean.getProducts();
-    List<Category> categories = productBean.getCategories();
-    Long categoryId = productBean.getCategoryId();
-    Long filterId = productBean.getFilterId();
-%>
 <h1>Product Management</h1>
-<form action="product" method="post" enctype="multipart/form-data">
-    <h2>Add Product</h2>
-    <div>
-        <label for="name">Product Name:</label>
-        <input type="text" id="name" name="name"
-               value="<%= productBean.getProductName() != null ? productBean.getProductName(): ""%>">
-    </div>
-    <div>
-        <label for="description">Product Description:</label>
-        <input type="text" id="description" name="description"
-               value="<%= productBean.getProductDescription() != null ? productBean.getProductDescription() : "" %>">
-    </div>
-    <div>
-        <label for="price">Product Price:</label>
-        <input type="text" id="price" name="price"
-               value="<%= productBean.getProductPrice() != null ? productBean.getProductPrice() :""%>">
-    </div>
-    <div>
-        <label for="quantity">Quantity :</label>
-        <input type="text" id="quantity" name="quantity"
-               value="<%= productBean.getProductQuantity() != null ? productBean.getProductQuantity() : ""%>">
-    </div>
-    <div>
-        <label for="sdr">Sdr :</label>
-        <input type="text" id="sdr" name="sdr"
-               value="<%= productBean.getProductSdr() != null ? productBean.getProductSdr() : "" %>">
-    </div>
-    <dic>
-        <label for="image">Product Image:</label>
-        <input type="file" id="image" name="image">
-    </dic>
-    <% if (productBean.getProductId() != null) { %>
-    <input type="hidden" name="productId" value="<%= productBean.getProductId() %>">
-    <input type="hidden" name="_method" value="PUT">
-    <% } %>
-    <div>
-        <label for="category">Product Category:</label>
-        <select id="category" name="categoryId">
-            <% for (Category c : categories) { %>
-            <option <%= categoryId != null && categoryId.equals(c.getId()) ? "selected" : "" %>
-                    value="<%= c.getId() %>"><%= c.getName() %>
-            </option>
-            <% } %>
-        </select>
-    </div>
-    <div>
-        <input type="submit" value="<%= productBean.getProductId() != null ? "Update product" : "Add product" %>">
-        <% if (productBean.getProductId() != null) { %>
-        <button id="reset-button" type="button" onclick="resetForm()">Reset</button>
-        <% } %>
-    </div>
-</form>
-<% if (productBean.getError() != null) { %>
-<div>
-    <h1>Error</h1>
-    <p><%= productBean.getError()%>
-    </p>
-</div>
-<% } %>
 <div class="search-bar">
-    <form method="get" action="product">
-        <input type="text" id="categorySearch" placeholder="Search for categories.."
-               value="<%= productBean.getKeyWord() != null ? productBean.getKeyWord() : ""%>" name="keyWord">
-        <input type="submit" value="Search">
-    </form>
+    <s:form action="searchProducts" method="get">
+        <s:textfield id="categorySearch" name="keyWord" placeholder="Search for categories.." value="%{keyWord}"/>
+        <s:submit value="Search"/>
+    </s:form>
+    <div>
+        <a href="addProductForm">Add Product</a>
+    </div>
 </div>
-<form method="get" action="product" id="filter">
-    <label for="categoryId"> Select Category:</label>
-    <select id="categoryId" name="categoryId">
-        <option value="">All</option>
-        <% for (Category c : categories) { %>
-        <option <%= filterId != null && filterId.equals(c.getId()) ? "selected" : "" %>
-                value="<%= c.getId() %>"><%= c.getName() %>
-        </option>
-        <% } %>
-    </select>
-    <input type="submit" value="Filter">
-</form>
+<s:form action="filterProducts" method="get" id="filter">
+    <label for="filterId"> Select Category:</label>
+    <s:select id="filterId" name="filterId" list="categories" listKey="id" listValue="name" headerKey=""
+              headerValue="All" value="%{filterId}"/>
+    <s:submit value="Filter"/>
+</s:form>
 <div class="product-list">
-        <% if (products.isEmpty()){ %>
-    <h2>No products found</h2>
-        <%} else {%>
-    <table>
-        <tr>
-            <th>Product ID</th>
-            <th>Product Image</th>
-            <th>Product Name</th>
-            <th>Product Description</th>
-            <th>Product Price</th>
-            <th>Product Category</th>
-            <th>Actions</th>
-        </tr>
-        <% for (Product p : products) {%>
-        <tr>
-            <td><%= p.getId() %>
-            </td>
-            <td><img src="./images/<%= new File(p.getImage()).getName() %>" alt="<%= p.getName() %>"
-                     width="100" height="100"></td>
-            <td><%= p.getName() %>
-            </td>
-            <td><%= p.getDescription() %>
-            </td>
-            <td><%= p.getPrice() %>
-            </td>
-            <td><%= p.getCategory().getName() %>
-            </td>
-            <td class="actions">
-                <form method="post" action="product">
-                    <input type="hidden" name="_method" value="UPDATE">
-                    <input type="hidden" name="productId" value="<%= p.getId() %>">
-                    <input type="submit" value="Update" class="update">
-                </form>
-                <form method="post" action="product">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <input type="hidden" name="productId" value="<%= p.getId() %>">
-                    <input type="submit" value="Delete">
-                </form>
-            </td>
-        </tr>
-        <% } %>
-    </table>
-        <% } %>
+    <s:if test="%{#products.isEmpty()}">
+        <h2>No products found</h2>
+    </s:if>
+    <s:else>
+        <table>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Image</th>
+                <th>Product Name</th>
+                <th>Product Description</th>
+                <th>Product Price</th>
+                <th>Product Category</th>
+                <th>Actions</th>
+            </tr>
+            <s:iterator value="products" var="p">
+                <tr>
+                    <td><s:property value="#p.id"/></td>
+                    <td><img src="./images/<s:property value="#p.image" />" alt="<s:property value="#p.name" />"
+                             width="100" height="100"></td>
+                    <td><s:property value="#p.name"/></td>
+                    <td><s:property value="#p.description"/></td>
+                    <td><s:property value="#p.price"/></td>
+                    <td><s:property value="#p.category.name"/></td>
+                    <td class="actions">
+                        <s:form action="updateProductForm" method="post">
+                            <s:hidden name="productId" value="#p.id"/>
+                            <s:submit value="Update" cssClass="update"/>
+                        </s:form>
+                        <s:form action="deleteProduct" method="post">
+                            <s:hidden name="productId" value="#p.id"/>
+                            <s:submit value="Delete"/>
+                        </s:form>
+                    </td>
+                </tr>
+            </s:iterator>
+        </table>
+    </s:else>
+</div>
 </body>
 <script>
     function resetForm() {

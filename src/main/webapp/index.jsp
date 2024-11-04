@@ -6,6 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="s" uri="/struts-tags" %>
 <html>
 <head>
     <title>Home Page</title>
@@ -94,9 +95,9 @@
 <div class="container">
     <h1>Welcome to E-Commerce Management</h1>
     <br/>
-    <a href="category">Category Management</a>
+    <a href="categories.action" >Categories Management</a>
     <br/>
-    <a href="product">Product Management</a>
+    <a href="products.action" >Products Management</a>
 </div>
 </body>
 </html>
